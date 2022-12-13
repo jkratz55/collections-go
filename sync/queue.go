@@ -90,8 +90,14 @@ func (bq *BlockingQueue[T]) TryPoll() (T, bool) {
 // Clear is blocking and will run as long as elements are in the queue. If elements
 // are being offered while the queue is being cleared it may run indefinitely.
 func (bq *BlockingQueue[T]) Clear() {
-	for len(bq.data) > 0 {
-		<-bq.data
+	for {
+		select {
+		case <-bq.data:
+			// Reading values and throwing them away
+		default:
+			// Once the queue is empty return
+			return
+		}
 	}
 }
 

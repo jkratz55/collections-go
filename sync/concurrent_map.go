@@ -1,72 +1,92 @@
 package sync
 
-//
-// import (
-// 	"sync"
-// )
-//
-// type Entry[T any] struct {
-// 	Key string
-// 	Value T
-// }
-//
-// type MapShard[T any] struct {
-// 	data map[string]T
-// 	sync.RWMutex
-// }
-//
-// type ConcurrentMap[T any] struct {
-// 	shards []MapShard[T]
-// }
-//
-// func NewMap[T any]() *ConcurrentMap[T] {
-// 	return nil
-// }
-//
-// func (m *ConcurrentMap[T]) Get(key string) (T, bool) {
-//
-// }
-//
-// func (m *ConcurrentMap[T]) Contains(key string) bool {
-//
-// }
-//
-// func (m *ConcurrentMap[T]) Set(key string, val T) {
-//
-// }
-//
-// func (m *ConcurrentMap[T]) SetIfPresent(key string, val T) bool {
-//
-// }
-//
-// func (m *ConcurrentMap[T]) Delete(key string) bool {
-//
-// }
-//
-// func (m *ConcurrentMap[T]) Pop(key string) (T, bool) {
-//
-// }
-//
-// func (m *ConcurrentMap[T]) Size() uint64 {
-//
-// }
-//
-// func (m *ConcurrentMap[T]) ShardStats() map[int]uint64 {
-//
-// }
-//
-// func (m *ConcurrentMap[T]) Iter() *MapIterator[T] {
-// 	return &MapIterator[T]{}
-// }
-//
-// type MapIterator[T any] struct {
-//
-// }
-//
-// func (mi *MapIterator[T]) Next() bool {
-//
-// }
-//
-// func (mi *MapIterator[T]) Value() Entry[T] {
-//
-// }
+import (
+	"sync"
+)
+
+const DefaultShards = 16
+
+type Entry[T any] struct {
+	Key   string
+	Value T
+}
+
+type mapShard[K comparable, V any] struct {
+	data  map[K]V
+	mutex sync.RWMutex
+}
+
+type ConcurrentMap[K comparable, V any] struct {
+	shards []mapShard[K, V]
+}
+
+func NewMap[K comparable, V any](shards int) ConcurrentMap[K, V] {
+	if shards < 1 {
+		shards = DefaultShards
+	}
+	mapShards := make([]mapShard[K, V], shards)
+	for i := range mapShards {
+		mapShards[i] = mapShard[K, V]{
+			data:  make(map[K]V, 0),
+			mutex: sync.RWMutex{},
+		}
+	}
+	return ConcurrentMap[K, V]{
+		shards: mapShards,
+	}
+}
+
+func (m ConcurrentMap[K, V]) Get(key string) (V, bool) {
+	panic("not implemented")
+}
+
+func (m ConcurrentMap[K, V]) Contains(key string) bool {
+	panic("not implemented")
+}
+
+func (m ConcurrentMap[K, V]) Set(key string, val V) {
+	panic("not implemented")
+}
+
+func (m ConcurrentMap[K, V]) SetIfPresent(key string, val V) bool {
+	panic("not implemented")
+}
+
+func (m ConcurrentMap[K, V]) SetIfAbsent(key string, val V) bool {
+	panic("not implemented")
+}
+
+func (m ConcurrentMap[K, V]) Delete(key string) bool {
+	panic("not implemented")
+}
+
+func (m ConcurrentMap[K, V]) Pop(key string) (V, bool) {
+	panic("not implemented")
+}
+
+func (m ConcurrentMap[K, V]) Size() uint64 {
+	panic("not implemented")
+}
+
+func (m ConcurrentMap[K, V]) ShardStats() map[int]uint64 {
+	panic("not implemented")
+}
+
+func (m ConcurrentMap[K, V]) Keys() []K {
+	panic("not implemented")
+}
+
+func (m ConcurrentMap[K, V]) Iter() *MapIterator[V] {
+	return &MapIterator[V]{}
+}
+
+type MapIterator[T any] struct {
+}
+
+func (mi MapIterator[T]) Next() bool {
+	panic("not implemented")
+}
+
+func (mi MapIterator[T]) Value() Entry[T] {
+	panic("not implemented")
+}
