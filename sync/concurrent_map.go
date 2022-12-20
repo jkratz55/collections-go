@@ -1,12 +1,14 @@
 package sync
 
 import (
+	"fmt"
 	"sync"
 )
 
 // DefaultShards is the default shards a ConcurrentMap will use.
 const DefaultShards = 16
 
+// Entry is a type representing a single entry in a ConcurrentMap.
 type Entry[K comparable, V any] struct {
 	Key   K
 	Value V
@@ -27,6 +29,37 @@ func StringHasher() Hasher[string] {
 		for i := 0; i < keyLength; i++ {
 			hash *= prime32
 			hash ^= uint32(key[i])
+		}
+		return hash
+	}
+}
+
+// Hashable is an interface type that unions all the supported types the NewHasher
+// supports.
+type Hashable interface {
+	~int8 | ~int16 | ~int32 | ~int64 | ~int | ~uint8 | ~uint16 | ~uint32 | ~uint64 | ~uint | ~float32 | ~float64 | ~complex64 | ~complex128 | ~string
+}
+
+// NewHasher creates a new Hasher for any type supported by the Hasher interface.
+//
+// While NewHasher supports strings it is preferable to use StringHasher if working
+// with string keys.
+func NewHasher[H Hashable]() Hasher[H] {
+	return func(key H) uint32 {
+		// This works because the default behavior of %v
+		// 	int, int8 etc.:          %d
+		// 	uint, uint8 etc.:        %d
+		// 	float32, complex64, etc: %g
+		// 	string:                  %s
+		// Essentially this convert any Hashable into a string which can then
+		// be hashed.
+		keyStr := fmt.Sprintf("%v", key)
+		hash := uint32(2166136261)
+		const prime32 = uint32(16777619)
+		keyLength := len(keyStr)
+		for i := 0; i < keyLength; i++ {
+			hash *= prime32
+			hash ^= uint32(keyStr[i])
 		}
 		return hash
 	}
