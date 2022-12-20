@@ -4,6 +4,7 @@ import (
 	"sync"
 )
 
+// DefaultShards is the default shards a ConcurrentMap will use.
 const DefaultShards = 16
 
 type Entry[K comparable, V any] struct {
@@ -31,17 +32,28 @@ func StringHasher() Hasher[string] {
 	}
 }
 
+// mapShard is a shard of data in a ConcurrentMap. It contains the underlying
+// data as map[K]V and a RWMutex to protect that data.
 type mapShard[K comparable, V any] struct {
 	data map[K]V
 	sync.RWMutex
 }
 
+// ConcurrentMap is a thread safe sharded map implementation. ConcurrentMap shards
+// data to reduce lock contention.
+//
+// The zero-value of ConcurrentMap is not usable. Instead, NewConcurrentMap function
+// should be used to crete and initialize a new ConcurrentMap.
 type ConcurrentMap[K comparable, V any] struct {
 	shards     []*mapShard[K, V]
 	hasher     Hasher[K]
 	shardCount uint
 }
 
+// NewConcurrentMap creates and initializes a new empty ConcurrentMap. NewConcurrentMap
+// accepts two required parameters, number of shards, and the Hasher to hash keys.
+// If value for shards < 1 than DefaultShards will be used. If a nil Hasher is provided
+// this function will panic.
 func NewConcurrentMap[K comparable, V any](shards int, hasher Hasher[K]) ConcurrentMap[K, V] {
 	if shards < 1 {
 		shards = DefaultShards
@@ -63,6 +75,9 @@ func NewConcurrentMap[K comparable, V any](shards int, hasher Hasher[K]) Concurr
 	}
 }
 
+// Get retrieves a single element from the ConcurrentMap. Get follows the same
+// semantics of the built-in map returning the value and a boolean indicating
+// if the key exists.
 func (m ConcurrentMap[K, V]) Get(key K) (V, bool) {
 	shard := m.getShard(key)
 	shard.RLock()
@@ -97,6 +112,7 @@ func (m ConcurrentMap[K, V]) MGet(keys ...K) []V {
 	return values
 }
 
+// Contains returns a boolean indicating if the key exists.
 func (m ConcurrentMap[K, V]) Contains(key K) bool {
 	shard := m.getShard(key)
 	shard.RLock()
@@ -105,6 +121,8 @@ func (m ConcurrentMap[K, V]) Contains(key K) bool {
 	return ok
 }
 
+// Set inserts or updates ConcurrentMap by setting the key value pair. If the key
+// already exists its value is overridden.
 func (m ConcurrentMap[K, V]) Set(key K, val V) {
 	shard := m.getShard(key)
 	shard.Lock()
@@ -112,6 +130,8 @@ func (m ConcurrentMap[K, V]) Set(key K, val V) {
 	shard.Unlock()
 }
 
+// SetIfPresent sets the value for a given key only if they key already exists
+// in the ConcurrentMap. This is essentially an update only operation.
 func (m ConcurrentMap[K, V]) SetIfPresent(key K, val V) bool {
 	shard := m.getShard(key)
 	shard.Lock()
@@ -123,6 +143,8 @@ func (m ConcurrentMap[K, V]) SetIfPresent(key K, val V) bool {
 	return false
 }
 
+// SetIfAbsent set the value for a given key only if the key doesn't already
+// exist in the ConcurrentMap. This is essentially a insert only operation.
 func (m ConcurrentMap[K, V]) SetIfAbsent(key K, val V) bool {
 	shard := m.getShard(key)
 	shard.Lock()
@@ -134,6 +156,8 @@ func (m ConcurrentMap[K, V]) SetIfAbsent(key K, val V) bool {
 	return false
 }
 
+// MSet performs a Set operation on multiple key-value paris supplied
+// as a map.
 func (m ConcurrentMap[K, V]) MSet(data map[K]V) {
 	for key, val := range data {
 		shard := m.getShard(key)
@@ -143,6 +167,8 @@ func (m ConcurrentMap[K, V]) MSet(data map[K]V) {
 	}
 }
 
+// Delete deletes a single key/value from the ConcurrentMap returning
+// a boolean indicating if the key was present or not.
 func (m ConcurrentMap[K, V]) Delete(key K) bool {
 	shard := m.getShard(key)
 	shard.Lock()
@@ -155,6 +181,8 @@ func (m ConcurrentMap[K, V]) Delete(key K) bool {
 	return true
 }
 
+// Pop fetching the value for a given key and if the key was found deletes that
+// key from the ConcurrentMap
 func (m ConcurrentMap[K, V]) Pop(key K) (V, bool) {
 	shard := m.getShard(key)
 	shard.Lock()
@@ -166,6 +194,10 @@ func (m ConcurrentMap[K, V]) Pop(key K) (V, bool) {
 	return val, ok
 }
 
+// Size returns the approx size (number of elements) in the ConcurrentMap.
+// The size is approximated due to the nature of how the data is sharded.
+// To prevent lock contention each shard is processed and shards already
+// processed may have undergone changes by the time this function returns.
 func (m ConcurrentMap[K, V]) Size() uint64 {
 	size := uint64(0)
 	for _, shard := range m.shards {
@@ -176,7 +208,11 @@ func (m ConcurrentMap[K, V]) Size() uint64 {
 	return size
 }
 
-func (m ConcurrentMap[K, V]) ShardStats() map[int]int {
+// SizeByShard returns the approx size (number of elements) per shard in the
+// ConcurrentMap. The returned values represent the size of the shard at the
+// time a read lock was acquired on it. The returned values may not be exact
+// as the shards may have been modified after determining their size.
+func (m ConcurrentMap[K, V]) SizeByShard() map[int]int {
 	stats := make(map[int]int)
 	for i := range m.shards {
 		shard := m.shards[i]
@@ -187,6 +223,10 @@ func (m ConcurrentMap[K, V]) ShardStats() map[int]int {
 	return stats
 }
 
+// Keys returns all the keys in the ConcurrentMap. Keys is an atomic operation
+// across all shards. A read lock is acquired on all shards before retrieving
+// the keys. Keys can be an expensive operation and is not recommended to be
+// called often.
 func (m ConcurrentMap[K, V]) Keys() []K {
 	keys := make([]K, 0)
 	for i := range m.shards {
@@ -203,6 +243,12 @@ func (m ConcurrentMap[K, V]) Keys() []K {
 	return keys
 }
 
+// Iterator returns an iterator to iterate through all the entries in the ConcurrentMap.
+//
+// Internally Iterator takes a snapshot of each shard one by one, acquiring a read
+// lock as it snapshots each shard. This is done for performance reasons as to not
+// hold locks as the caller iterates through the ConcurrentMap. However, this means
+// that the data being iterated through could potentially be stale.
 func (m ConcurrentMap[K, V]) Iterator() *ConcurrentMapIterator[K, V] {
 	return &ConcurrentMapIterator[K, V]{
 		data:    m.snapshot(),
