@@ -5,6 +5,9 @@ import (
 )
 
 // Map is a very thin layer over sync.Map to make it type-safe.
+//
+// This implementation is intended as a simple stop gap until the standard library
+// adds a generic version of sync.Map.
 type Map[K comparable, V any] struct {
 	internal sync.Map
 }
