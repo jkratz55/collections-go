@@ -1,311 +1,179 @@
 package collections
 
-// func TestNewSet(t *testing.T) {
-// 	type testCase[T comparable] struct {
-// 		name string
-// 		want *Set[T]
-// 	}
-// 	tests := []testCase[ /* TODO: Insert concrete types here */ ]{
-// 		// TODO: Add test cases.
-// 	}
-// 	for _, tt := range tests {
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			assert.Equalf(t, tt.want, NewSet(), "NewSet()")
-// 		})
-// 	}
-// }
-//
-// func TestSetIterator_Next(t *testing.T) {
-// 	type testCase[T comparable] struct {
-// 		name string
-// 		s    SetIterator[T]
-// 		want bool
-// 	}
-// 	tests := []testCase[ /* TODO: Insert concrete types here */ ]{
-// 		// TODO: Add test cases.
-// 	}
-// 	for _, tt := range tests {
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			assert.Equalf(t, tt.want, tt.s.Next(), "Next()")
-// 		})
-// 	}
-// }
-//
-// func TestSetIterator_Value(t *testing.T) {
-// 	type testCase[T comparable] struct {
-// 		name string
-// 		s    SetIterator[T]
-// 		want T
-// 	}
-// 	tests := []testCase[ /* TODO: Insert concrete types here */ ]{
-// 		// TODO: Add test cases.
-// 	}
-// 	for _, tt := range tests {
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			assert.Equalf(t, tt.want, tt.s.Value(), "Value()")
-// 		})
-// 	}
-// }
-//
-// func TestSet_Add(t *testing.T) {
-// 	type args[T comparable] struct {
-// 		vals []T
-// 	}
-// 	type testCase[T comparable] struct {
-// 		name string
-// 		s    Set[T]
-// 		args args[T]
-// 	}
-// 	tests := []testCase[ /* TODO: Insert concrete types here */ ]{
-// 		// TODO: Add test cases.
-// 	}
-// 	for _, tt := range tests {
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			tt.s.Add(tt.args.vals...)
-// 		})
-// 	}
-// }
-//
-// func TestSet_AsSlice(t *testing.T) {
-// 	type testCase[T comparable] struct {
-// 		name string
-// 		s    Set[T]
-// 		want []T
-// 	}
-// 	tests := []testCase[ /* TODO: Insert concrete types here */ ]{
-// 		// TODO: Add test cases.
-// 	}
-// 	for _, tt := range tests {
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			assert.Equalf(t, tt.want, tt.s.AsSlice(), "AsSlice()")
-// 		})
-// 	}
-// }
-//
-// func TestSet_Clone(t *testing.T) {
-// 	type testCase[T comparable] struct {
-// 		name string
-// 		s    Set[T]
-// 		want *Set[T]
-// 	}
-// 	tests := []testCase[ /* TODO: Insert concrete types here */ ]{
-// 		// TODO: Add test cases.
-// 	}
-// 	for _, tt := range tests {
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			assert.Equalf(t, tt.want, tt.s.Clone(), "Clone()")
-// 		})
-// 	}
-// }
-//
-// func TestSet_Contains(t *testing.T) {
-// 	type args[T comparable] struct {
-// 		val T
-// 	}
-// 	type testCase[T comparable] struct {
-// 		name string
-// 		s    Set[T]
-// 		args args[T]
-// 		want bool
-// 	}
-// 	tests := []testCase[ /* TODO: Insert concrete types here */ ]{
-// 		// TODO: Add test cases.
-// 	}
-// 	for _, tt := range tests {
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			assert.Equalf(t, tt.want, tt.s.Contains(tt.args.val), "Contains(%v)", tt.args.val)
-// 		})
-// 	}
-// }
-//
-// func TestSet_Equals(t *testing.T) {
-// 	type args[T comparable] struct {
-// 		other *Set[T]
-// 	}
-// 	type testCase[T comparable] struct {
-// 		name string
-// 		s    Set[T]
-// 		args args[T]
-// 		want bool
-// 	}
-// 	tests := []testCase[ /* TODO: Insert concrete types here */ ]{
-// 		// TODO: Add test cases.
-// 	}
-// 	for _, tt := range tests {
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			assert.Equalf(t, tt.want, tt.s.Equals(tt.args.other), "Equals(%v)", tt.args.other)
-// 		})
-// 	}
-// }
-//
-// func TestSet_ForEach(t *testing.T) {
-// 	type args[T comparable] struct {
-// 		fn func(val T)
-// 	}
-// 	type testCase[T comparable] struct {
-// 		name string
-// 		s    Set[T]
-// 		args args[T]
-// 	}
-// 	tests := []testCase[ /* TODO: Insert concrete types here */ ]{
-// 		// TODO: Add test cases.
-// 	}
-// 	for _, tt := range tests {
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			tt.s.ForEach(tt.args.fn)
-// 		})
-// 	}
-// }
-//
-// func TestSet_Iter(t *testing.T) {
-// 	type testCase[T comparable] struct {
-// 		name string
-// 		s    Set[T]
-// 		want *SetIterator[T]
-// 	}
-// 	tests := []testCase[ /* TODO: Insert concrete types here */ ]{
-// 		// TODO: Add test cases.
-// 	}
-// 	for _, tt := range tests {
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			assert.Equalf(t, tt.want, tt.s.Iter(), "Iter()")
-// 		})
-// 	}
-// }
-//
-// func TestSet_MarshalJSON(t *testing.T) {
-// 	type testCase[T comparable] struct {
-// 		name    string
-// 		s       Set[T]
-// 		want    []byte
-// 		wantErr assert.ErrorAssertionFunc
-// 	}
-// 	tests := []testCase[ /* TODO: Insert concrete types here */ ]{
-// 		// TODO: Add test cases.
-// 	}
-// 	for _, tt := range tests {
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			got, err := tt.s.MarshalJSON()
-// 			if !tt.wantErr(t, err, fmt.Sprintf("MarshalJSON()")) {
-// 				return
-// 			}
-// 			assert.Equalf(t, tt.want, got, "MarshalJSON()")
-// 		})
-// 	}
-// }
-//
-// func TestSet_MarshalMsgpack(t *testing.T) {
-// 	type testCase[T comparable] struct {
-// 		name    string
-// 		s       Set[T]
-// 		want    []byte
-// 		wantErr assert.ErrorAssertionFunc
-// 	}
-// 	tests := []testCase[ /* TODO: Insert concrete types here */ ]{
-// 		// TODO: Add test cases.
-// 	}
-// 	for _, tt := range tests {
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			got, err := tt.s.MarshalMsgpack()
-// 			if !tt.wantErr(t, err, fmt.Sprintf("MarshalMsgpack()")) {
-// 				return
-// 			}
-// 			assert.Equalf(t, tt.want, got, "MarshalMsgpack()")
-// 		})
-// 	}
-// }
-//
-// func TestSet_Remove(t *testing.T) {
-// 	type args[T comparable] struct {
-// 		val T
-// 	}
-// 	type testCase[T comparable] struct {
-// 		name string
-// 		s    Set[T]
-// 		args args[T]
-// 	}
-// 	tests := []testCase[ /* TODO: Insert concrete types here */ ]{
-// 		// TODO: Add test cases.
-// 	}
-// 	for _, tt := range tests {
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			tt.s.Remove(tt.args.val)
-// 		})
-// 	}
-// }
-//
-// func TestSet_Size(t *testing.T) {
-// 	type testCase[T comparable] struct {
-// 		name string
-// 		s    Set[T]
-// 		want int
-// 	}
-// 	tests := []testCase[ /* TODO: Insert concrete types here */ ]{
-// 		// TODO: Add test cases.
-// 	}
-// 	for _, tt := range tests {
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			assert.Equalf(t, tt.want, tt.s.Size(), "Size()")
-// 		})
-// 	}
-// }
-//
-// func TestSet_Union(t *testing.T) {
-// 	type args[T comparable] struct {
-// 		other *Set[T]
-// 	}
-// 	type testCase[T comparable] struct {
-// 		name string
-// 		s    Set[T]
-// 		args args[T]
-// 		want *Set[T]
-// 	}
-// 	tests := []testCase[ /* TODO: Insert concrete types here */ ]{
-// 		// TODO: Add test cases.
-// 	}
-// 	for _, tt := range tests {
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			assert.Equalf(t, tt.want, tt.s.Union(tt.args.other), "Union(%v)", tt.args.other)
-// 		})
-// 	}
-// }
-//
-// func TestSet_UnmarshalJSON(t *testing.T) {
-// 	type args struct {
-// 		data []byte
-// 	}
-// 	type testCase[T comparable] struct {
-// 		name    string
-// 		s       Set[T]
-// 		args    args
-// 		wantErr assert.ErrorAssertionFunc
-// 	}
-// 	tests := []testCase[ /* TODO: Insert concrete types here */ ]{
-// 		// TODO: Add test cases.
-// 	}
-// 	for _, tt := range tests {
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			tt.wantErr(t, tt.s.UnmarshalJSON(tt.args.data), fmt.Sprintf("UnmarshalJSON(%v)", tt.args.data))
-// 		})
-// 	}
-// }
-//
-// func TestSet_UnmarshalMsgpack(t *testing.T) {
-// 	type args struct {
-// 		data []byte
-// 	}
-// 	type testCase[T comparable] struct {
-// 		name    string
-// 		s       Set[T]
-// 		args    args
-// 		wantErr assert.ErrorAssertionFunc
-// 	}
-// 	tests := []testCase[ /* TODO: Insert concrete types here */ ]{
-// 		// TODO: Add test cases.
-// 	}
-// 	for _, tt := range tests {
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			tt.wantErr(t, tt.s.UnmarshalMsgpack(tt.args.data), fmt.Sprintf("UnmarshalMsgpack(%v)", tt.args.data))
-// 		})
-// 	}
-// }
+import (
+	"encoding/json"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/vmihailenco/msgpack/v5"
+)
+
+func TestNewSet(t *testing.T) {
+	set := NewSet[string]()
+	assert.NotNil(t, set)
+}
+
+func TestSet_Add(t *testing.T) {
+	set := NewSet[string]()
+
+	data := []string{"billy", "bob", "the", "great"}
+	set.Add(data...)
+
+	assert.Equal(t, 4, len(set.data))
+	for _, val := range data {
+		_, ok := set.data[val]
+		assert.True(t, ok)
+	}
+}
+
+func TestSet_Union(t *testing.T) {
+	s1 := NewSet[string]()
+	s1.Add("apple", "orange", "banana", "grape")
+
+	s2 := NewSet[string]()
+	s2.Add("pizza", "hamburger", "pie", "apple")
+
+	s3 := s1.Union(s2)
+
+	expected := map[string]struct{}{
+		"apple":     {},
+		"orange":    {},
+		"banana":    {},
+		"grape":     {},
+		"pizza":     {},
+		"hamburger": {},
+		"pie":       {},
+	}
+	assert.Equal(t, expected, s3.data)
+}
+
+func TestSet_Remove(t *testing.T) {
+	set := NewSet[string]()
+	set.Remove("hello") // noop
+	set.data["hello"] = struct{}{}
+	set.data["hola"] = struct{}{}
+
+	set.Remove("hello")
+	_, ok := set.data["hello"]
+	assert.False(t, ok)
+}
+
+func TestSet_Contains(t *testing.T) {
+	set := NewSet[string]()
+	set.Add("hello", "world", "billy bob")
+
+	assert.False(t, set.Contains("batman"))
+	assert.True(t, set.Contains("hello"))
+	assert.True(t, set.Contains("world"))
+	assert.False(t, set.Contains("billy"))
+}
+
+func TestSet_Size(t *testing.T) {
+	set := NewSet[string]()
+	assert.Equal(t, len(set.data), set.Size())
+	assert.Equal(t, 0, set.Size())
+
+	set.Add("hello", "world", "billy bob")
+
+	assert.Equal(t, len(set.data), set.Size())
+	assert.Equal(t, 3, set.Size())
+}
+
+func TestSet_Equals(t *testing.T) {
+	s1 := NewSet[string]()
+	s1.Add("pizza", "tacos", "hamburger")
+
+	s2 := NewSet[string]()
+	s2.Add("pizza", "tacos", "hamburger")
+
+	assert.True(t, s1.Equals(s2))
+
+	s3 := NewSet[string]()
+	s3.Add("hamburger", "tacos", "pizza")
+	assert.True(t, s1.Equals(s3))
+
+	s4 := NewSet[string]()
+	s4.Add("pizza", "pineapples")
+	assert.False(t, s1.Equals(s4))
+}
+
+func TestSet_Clone(t *testing.T) {
+	s1 := NewSet[string]()
+	s1.Add("pizza", "tacos", "hamburger")
+
+	s2 := s1.Clone()
+	assert.Equal(t, s1.data, s2.data)
+
+	s2.Add("hello")
+	assert.NotEqual(t, s1.data, s2.data)
+}
+
+func TestSet_AsSlice(t *testing.T) {
+	s1 := NewSet[string]()
+	s1.Add("pizza", "tacos", "hamburger")
+
+	data := s1.AsSlice()
+	assert.ElementsMatch(t, []string{"pizza", "tacos", "hamburger"}, data)
+}
+
+func TestSet_ForEach(t *testing.T) {
+	var actual []string
+
+	s1 := NewSet[string]()
+	s1.Add("pizza", "tacos", "hamburger")
+
+	s1.ForEach(func(val string) {
+		actual = append(actual, val)
+	})
+
+	assert.Equal(t, 3, len(actual))
+	assert.ElementsMatch(t, []string{"pizza", "tacos", "hamburger"}, actual)
+}
+
+func TestSet_Iter(t *testing.T) {
+	var actual []string
+
+	s1 := NewSet[string]()
+	s1.Add("pizza", "tacos", "hamburger")
+
+	for iter := s1.Iter(); iter.Next(); {
+		actual = append(actual, iter.Value())
+	}
+
+	assert.Equal(t, 3, len(actual))
+	assert.ElementsMatch(t, []string{"pizza", "tacos", "hamburger"}, actual)
+}
+
+func TestSet_MarshalJSON(t *testing.T) {
+	s1 := NewSet[string]()
+	s1.Add("pizza", "tacos", "hamburger")
+
+	_, err := json.Marshal(s1)
+	assert.NoError(t, err)
+}
+
+func TestSet_UnmarshalJSON(t *testing.T) {
+	input := "[\"pizza\", \"tacos\", \"hamburger\"]"
+	set := NewSet[string]()
+
+	err := json.Unmarshal([]byte(input), set)
+	assert.NoError(t, err)
+	assert.ElementsMatch(t, []string{"pizza", "tacos", "hamburger"}, set.AsSlice())
+}
+
+func TestSet_MarshalMsgpack(t *testing.T) {
+	s1 := NewSet[string]()
+	s1.Add("pizza", "tacos", "hamburger")
+
+	_, err := msgpack.Marshal(s1)
+	assert.NoError(t, err)
+}
+
+func TestSet_UnmarshalMsgpack(t *testing.T) {
+	input := []byte{147, 169, 104, 97, 109, 98, 117, 114, 103, 101, 114, 165, 112, 105, 122, 122, 97, 165, 116, 97, 99, 111, 115}
+	set := NewSet[string]()
+
+	err := msgpack.Unmarshal(input, set)
+	assert.NoError(t, err)
+	assert.ElementsMatch(t, []string{"pizza", "tacos", "hamburger"}, set.AsSlice())
+}
