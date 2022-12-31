@@ -1,16 +1,10 @@
 package collections
 
 import (
-	"errors"
+	"fmt"
 )
 
 const minDequeCapacity = 16
-
-var (
-	// ErrInvalidIndex is a sentinel error value indicating the index provided
-	// for an operation wasn't valid or in bounds.
-	ErrInvalidIndex = errors.New("invalid index")
-)
 
 type Deque[T any] struct {
 	data  []T
@@ -92,7 +86,7 @@ func (q *Deque[T]) Back() (T, bool) {
 func (q *Deque[T]) GetAt(idx int) (T, error) {
 	if idx < 0 || idx >= q.count {
 		var zero T
-		return zero, ErrInvalidIndex
+		return zero, fmt.Errorf("index %d is out of bounds", idx)
 	}
 	// bitwise modulus
 	return q.data[(q.head+idx)&(len(q.data)-1)], nil
@@ -108,26 +102,6 @@ func (q *Deque[T]) InsertBefore(idx int, elem T) {
 
 func (q *Deque[T]) InsertAfter(idx int, elem T) {
 
-}
-
-func (q *Deque[T]) Push(elem T) {
-	q.PushFront(elem)
-}
-
-func (q *Deque[T]) Pop() (T, bool) {
-	return q.PopFront()
-}
-
-func (q *Deque[T]) Peek() (T, bool) {
-	return q.Front()
-}
-
-func (q *Deque[T]) Offer(elem T) {
-	q.PushBack(elem)
-}
-
-func (q *Deque[T]) Poll() (T, bool) {
-	return q.PopFront()
 }
 
 func (q *Deque[T]) Capacity() int {
@@ -195,7 +169,7 @@ func (q *Deque[T]) resize() {
 	if q.tail > q.head {
 		copy(newData, q.data[q.head:q.tail])
 	} else {
-		// Otherwise the buffer is wrapping around so the data from head position
+		// Otherwise the buffer is wrapping around so the deque from head position
 		// until the end needs to be copied first, and then from the beginning of
 		// the buffer until that tail
 		temp := copy(newData, q.data[q.head:])

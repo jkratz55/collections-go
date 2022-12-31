@@ -71,7 +71,9 @@ func (s *Set[T]) ForEach(fn func(val T)) {
 
 // Iter returns a stateful iterator for iterator over a Set.
 //
-// Example:
+// Note: Internally AsSlice is called to populate the SetIterator. In the vast
+// majority of use cases this is unlikely to matter. However, if the Set contains
+// a vast amount of data it may be more efficient to use ForEach with a closure.
 func (s *Set[T]) Iter() *SetIterator[T] {
 	return &SetIterator[T]{
 		current: -1,
@@ -88,7 +90,7 @@ func (s *Set[T]) AsSlice() []T {
 	return vals
 }
 
-// Clone does a deep copy and returns a new Set with the same elements/data.
+// Clone does a deep copy and returns a new Set with the same elements/deque.
 func (s *Set[T]) Clone() *Set[T] {
 	other := NewSet[T]()
 	for key, _ := range s.data {
