@@ -4,10 +4,14 @@ package collections
 //
 // Under the hood Queue simply wraps Deque to provide a more friendly API for
 // working with queues.
+//
+// The zero-value of Queue is not usable. Queue should be created/initialized using
+// NewQueue.
 type Queue[T any] struct {
 	deque *Deque[T]
 }
 
+// NewQueue creates and initializes a new empty Queue.
 func NewQueue[T any]() *Queue[T] {
 	return &Queue[T]{
 		deque: NewDeque[T](),

@@ -108,6 +108,18 @@ func (s *Set[T]) Union(other *Set[T]) *Set[T] {
 	return unionSet
 }
 
+// Difference returns a new Set containing all the elements in other that did not
+// exists in current Set.
+func (s *Set[T]) Difference(other *Set[T]) *Set[T] {
+	newSet := NewSet[T]()
+	for key, _ := range other.data {
+		if _, found := s.data[key]; !found {
+			newSet.Add(key)
+		}
+	}
+	return newSet
+}
+
 // MarshalJSON marshals a Set into binary JSON representation
 func (s *Set[T]) MarshalJSON() ([]byte, error) {
 	elements := s.AsSlice()

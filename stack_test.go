@@ -6,89 +6,54 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewStack(t *testing.T) {
-	stack := NewStack[string]()
-	assert.NotNil(t, stack)
-}
+func TestStack(t *testing.T) {
+	// Since Stack is just a wrapper around Deque this is more/less an integration
+	// test to ensure Stack is behaving as expected. Since Stack is just delegating
+	// out to Deque it is safe to make the assumption Stack itself is working if this
+	// passes. No need to inspect the internals of Deque, that is what Deque unit test
+	// are for.
 
-func TestStack_Push(t *testing.T) {
-	stack := NewStack[string]()
-	stack.Push("World")
-	stack.Push("Hello")
+	stack := NewStack[int]()
+	stack.Push(1)
+	stack.Push(2)
+	stack.Push(3)
+	stack.Push(4)
+	stack.Push(5)
 
-	expected := []string{"World", "Hello"}
-	assert.Equal(t, expected, stack.data)
-	assert.Equal(t, 2, len(stack.data))
-}
-
-func TestStack_Pop(t *testing.T) {
-	stack := NewStack[string]()
-	stack.data = append(stack.data, "World", "Hello")
-	expected := []string{"Hello", "World"}
-	actual := make([]string, 0)
-
-	val, err := stack.Pop()
-	assert.NoError(t, err)
-	actual = append(actual, val)
-
-	val, err = stack.Pop()
-	assert.NoError(t, err)
-	actual = append(actual, val)
-
-	val, err = stack.Pop()
-	assert.ErrorIs(t, err, ErrEmptyStack)
-
-	assert.Equal(t, expected, actual)
-	assert.Equal(t, 0, len(stack.data))
-}
-
-func TestStack_Peek(t *testing.T) {
-	stack := NewStack[string]()
-	stack.data = append(stack.data, "World", "Hello")
+	assert.False(t, stack.Empty())
+	assert.Equal(t, 5, stack.Size())
 
 	val, ok := stack.Peek()
 	assert.True(t, ok)
-	assert.Equal(t, "Hello", val)
-	assert.Equal(t, 2, len(stack.data))
+	assert.Equal(t, 5, val)
 
-	val, ok = stack.Peek()
-	assert.True(t, ok)
-	assert.Equal(t, "Hello", val)
-	assert.Equal(t, 2, len(stack.data))
-
-	stack.data = make([]string, 0)
-	val, ok = stack.Peek()
-	assert.False(t, ok)
-	assert.Equal(t, 0, len(stack.data))
-}
-
-func TestStack_Size(t *testing.T) {
-	stack := NewStack[string]()
-	assert.Equal(t, 0, stack.Size())
-	stack.data = append(stack.data, "test")
-	assert.Equal(t, 1, stack.Size())
-	stack.data = append(stack.data, "test")
-	assert.Equal(t, 2, stack.Size())
-}
-
-func TestStack_Empty(t *testing.T) {
-	stack := NewStack[string]()
-	assert.True(t, stack.Empty())
-	stack.data = append(stack.data, "test")
-	assert.False(t, stack.Empty())
-}
-
-func TestStack_PopEach(t *testing.T) {
-	actual := make([]string, 0)
-	fn := func(val string) {
-		actual = append(actual, val)
+	for i := 5; i > 0; i-- {
+		val, err := stack.Pop()
+		assert.NoError(t, err)
+		assert.Equal(t, i, val)
+		assert.Equal(t, i-1, stack.Size())
 	}
 
-	stack := NewStack[string]()
-	stack.data = append(stack.data, "World", "Hello")
+	assert.True(t, stack.Empty())
 
-	stack.PopEach(fn)
+	val, err := stack.Pop()
+	assert.Error(t, err)
 
-	assert.Equal(t, 0, len(stack.data))
-	assert.Equal(t, []string{"Hello", "World"}, actual)
+	val, ok = stack.Peek()
+	assert.False(t, ok)
+	assert.Equal(t, 0, val)
+
+	stack.Push(1)
+	stack.Push(2)
+	stack.Push(3)
+	stack.Push(4)
+	stack.Push(5)
+
+	expected := []int{5, 4, 3, 2, 1}
+	actual := make([]int, 0)
+	stack.PopEach(func(val int) {
+		actual = append(actual, val)
+	})
+	assert.Equal(t, expected, actual)
+	assert.True(t, stack.Empty())
 }

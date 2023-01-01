@@ -6,6 +6,31 @@ import (
 
 const minDequeCapacity = 16
 
+// Deque is a linear collection of elements that supports insertion and deletion
+// at both ends. Deque is short for double ended queue.
+//
+// Deque efficiently handles adding and removing elements at either end with O(1)
+// performance. This is accomplished using a ring buffer to store the data which
+// reduces pressure on garbage collector and more efficiently uses memory when
+// compared to implementations that use linked lists or slices.
+//
+// Deque can be used as both a queue or a stack.
+//
+//	Stack
+//		PushBack - Push element to top of stack
+//		PopBack - Pop top element off the stack
+//		Back - Peek at the top of the stack
+//
+//	Queue
+//		PushBack- Add element to end of the queue
+//		PopFront - Poll the first element at the head of the queue
+//		Front - Peek at the next element in the queue
+//
+// This package also provides Queue and Stack types which wraps Deque in a simpler
+// API.
+//
+// The zero-value of Deque is not usable. New instances of Deque should be created
+// and initialized using NewDeque function.
 type Deque[T any] struct {
 	data  []T
 	head  int
@@ -13,6 +38,7 @@ type Deque[T any] struct {
 	count int
 }
 
+// NewDeque creates and initializes a new empty Deque
 func NewDeque[T any]() *Deque[T] {
 	return &Deque[T]{
 		data:  make([]T, minDequeCapacity),
@@ -22,6 +48,7 @@ func NewDeque[T any]() *Deque[T] {
 	}
 }
 
+// PushFront pushes a new element at the front of the Deque
 func (q *Deque[T]) PushFront(elem T) {
 	q.lazyGrow()
 	q.head = q.prev(q.head)
@@ -29,6 +56,7 @@ func (q *Deque[T]) PushFront(elem T) {
 	q.count++
 }
 
+// PushBack pushes a new element to the back of the Deque
 func (q *Deque[T]) PushBack(elem T) {
 	q.lazyGrow()
 	q.data[q.tail] = elem
@@ -36,6 +64,9 @@ func (q *Deque[T]) PushBack(elem T) {
 	q.count++
 }
 
+// PopFront pops the front/first element of the Deque removing it and returning
+// the value. If the Deque is empty the zero-value will be returned with a bool
+// value of false.
 func (q *Deque[T]) PopFront() (T, bool) {
 	var zero T
 	if q.count <= 0 {
@@ -51,6 +82,9 @@ func (q *Deque[T]) PopFront() (T, bool) {
 	return val, true
 }
 
+// PopBack pops the back/last element of the Deque removing it and returning
+// the value. If the Deque is empty the zero-value will be returned with a bool
+// value of false.
 func (q *Deque[T]) PopBack() (T, bool) {
 	var zero T
 	if q.count <= 0 {
@@ -67,6 +101,8 @@ func (q *Deque[T]) PopBack() (T, bool) {
 	return val, true
 }
 
+// Front returns the first element of the Deque. If the Deque is empty the
+// zero-value will be returned with a bool value of false.
 func (q *Deque[T]) Front() (T, bool) {
 	if q.count <= 0 {
 		var zero T
@@ -75,6 +111,8 @@ func (q *Deque[T]) Front() (T, bool) {
 	return q.data[q.head], true
 }
 
+// Back returns the last element of the Deque. If the Deque is empty the
+// zero-value will be returned with a bool value of false.
 func (q *Deque[T]) Back() (T, bool) {
 	if q.count <= 0 {
 		var zero T
@@ -83,27 +121,31 @@ func (q *Deque[T]) Back() (T, bool) {
 	return q.data[q.prev(q.tail)], true
 }
 
-func (q *Deque[T]) GetAt(idx int) (T, error) {
+// GetAt returns the element at the provided index.
+//
+// If the index is not valid this will panic.
+func (q *Deque[T]) GetAt(idx int) T {
 	if idx < 0 || idx >= q.count {
-		var zero T
-		return zero, fmt.Errorf("index %d is out of bounds", idx)
+		panic(fmt.Sprintf("index %d is out of bounds", idx))
 	}
 	// bitwise modulus
-	return q.data[(q.head+idx)&(len(q.data)-1)], nil
+	return q.data[(q.head+idx)&(len(q.data)-1)]
 }
 
-func (q *Deque[T]) RemoveAt(idx int) error {
-	return nil
+// Clear removes all the elements from the Deque but retains the current capacity.
+func (q *Deque[T]) Clear() {
+	var zero T
+	modBits := len(q.data) - 1
+	h := q.head
+	for i := 0; i < q.Len(); i++ {
+		q.data[(h+i)&modBits] = zero
+	}
+	q.head = 0
+	q.tail = 0
+	q.count = 0
 }
 
-func (q *Deque[T]) InsertBefore(idx int, elem T) {
-
-}
-
-func (q *Deque[T]) InsertAfter(idx int, elem T) {
-
-}
-
+// Capacity returns the size of the underlying ring-buffer holding the elements.
 func (q *Deque[T]) Capacity() int {
 	if q == nil {
 		return 0
@@ -111,6 +153,7 @@ func (q *Deque[T]) Capacity() int {
 	return cap(q.data)
 }
 
+// Len returns the number of elements in the Deque.
 func (q *Deque[T]) Len() int {
 	if q == nil {
 		return 0
@@ -118,6 +161,12 @@ func (q *Deque[T]) Len() int {
 	return q.count
 }
 
+func (q *Deque[T]) IsEmpty() bool {
+	return q.count == 0
+}
+
+// AsSlice returns an array containing all the elements of the Deque in order
+// of front/head to back/tail.
 func (q *Deque[T]) AsSlice() []T {
 	if q == nil || q.count == 0 {
 		return make([]T, 0)
