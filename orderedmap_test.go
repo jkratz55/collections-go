@@ -70,3 +70,96 @@ func TestOrderedMap(t *testing.T) {
 	assert.Equal(t, expectedKeys, actualKeys)
 	assert.Equal(t, expectedValues, actualValues)
 }
+
+func TestOrderedMap_Set(t *testing.T) {
+	om := NewOrderedMap[string, string]()
+	assert.True(t, om.Set("Hello", "World"))
+
+	val, ok := om.data["Hello"]
+	assert.True(t, ok)
+	assert.Equal(t, "World", val.Value)
+	assert.Equal(t, "Hello", om.keys.Front().Key)
+	assert.Equal(t, "World", om.keys.Front().Value)
+
+	assert.False(t, om.Set("Hello", "Cow"))
+	assert.Equal(t, "Cow", val.Value)
+	assert.Equal(t, "Hello", om.keys.Front().Key)
+	assert.Equal(t, "Cow", om.keys.Front().Value)
+
+	assert.True(t, om.Set("Mellow", "Yellow"))
+	elem := om.keys.Front().Next()
+	assert.Equal(t, "Mellow", elem.Key)
+	assert.Equal(t, "Yellow", elem.Value)
+}
+
+func TestOrderedMap_Contains(t *testing.T) {
+	om := NewOrderedMap[string, string]()
+	assert.False(t, om.Contains("hello"))
+
+	om.Set("hello", "world")
+	assert.True(t, om.Contains("hello"))
+}
+
+func TestOrderedMap_Get(t *testing.T) {
+	om := NewOrderedMap[string, string]()
+
+	val, ok := om.Get("hello")
+	assert.False(t, ok)
+	assert.Equal(t, "", val)
+
+	assert.True(t, om.Set("hello", "world"))
+	val, ok = om.Get("hello")
+	assert.True(t, ok)
+	assert.Equal(t, "world", val)
+}
+
+func TestOrderedMap_GetOrDefault(t *testing.T) {
+	om := NewOrderedMap[string, string]()
+
+	val := om.GetOrDefault("hello", "DEFAULT")
+	assert.Equal(t, "DEFAULT", val)
+
+	assert.True(t, om.Set("hello", "world"))
+	val = om.GetOrDefault("hello", "DEFAULT")
+	assert.Equal(t, "world", val)
+}
+
+func TestOrderedMap_Delete(t *testing.T) {
+	om := NewOrderedMap[string, string]()
+
+	assert.True(t, om.Set("1", "hello1"))
+	assert.True(t, om.Set("2", "hello2"))
+	assert.True(t, om.Set("3", "hello3"))
+
+	assert.True(t, om.Delete("2"))
+	assert.Equal(t, 2, len(om.data))
+
+	root := om.keys.Front()
+	last := root.Next()
+
+	assert.Equal(t, root, om.data["1"])
+	assert.Equal(t, last, om.data["3"])
+	assert.Equal(t, last, root.Next())
+	assert.Equal(t, root, last.Prev())
+}
+
+func TestOrderedMap_Size(t *testing.T) {
+	om := NewOrderedMap[string, string]()
+	assert.Equal(t, 0, om.Size())
+
+	assert.True(t, om.Set("1", "hello1"))
+	assert.True(t, om.Set("2", "hello2"))
+	assert.True(t, om.Set("3", "hello3"))
+
+	assert.Equal(t, 3, om.Size())
+}
+
+func TestOrderedMap_Keys(t *testing.T) {
+	om := NewOrderedMap[string, string]()
+
+	assert.True(t, om.Set("1", "hello1"))
+	assert.True(t, om.Set("2", "hello2"))
+	assert.True(t, om.Set("3", "hello3"))
+
+	assert.Equal(t, []string{"1", "2", "3"}, om.Keys())
+}

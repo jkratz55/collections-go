@@ -130,6 +130,23 @@ func TestSet_ForEach(t *testing.T) {
 	assert.ElementsMatch(t, []string{"pizza", "tacos", "hamburger"}, actual)
 }
 
+func TestSet_Difference(t *testing.T) {
+	s1 := NewSet[string]()
+	s1.Add("pizza", "tacos", "hamburger")
+
+	s2 := NewSet[string]()
+	s2.Add("pizza", "tacos", "pasta", "hamburger", "ice cream")
+
+	s3 := s1.Difference(s2)
+	assert.Equal(t, map[string]struct{}{
+		"pasta":     {},
+		"ice cream": {},
+	}, s3.data)
+
+	s4 := s2.Difference(s1)
+	assert.True(t, s4.Size() == 0)
+}
+
 func TestSet_Iter(t *testing.T) {
 	var actual []string
 
