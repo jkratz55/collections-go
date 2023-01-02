@@ -147,17 +147,11 @@ func (q *Deque[T]) Clear() {
 
 // Capacity returns the size of the underlying ring-buffer holding the elements.
 func (q *Deque[T]) Capacity() int {
-	if q == nil {
-		return 0
-	}
 	return cap(q.data)
 }
 
 // Len returns the number of elements in the Deque.
 func (q *Deque[T]) Len() int {
-	if q == nil {
-		return 0
-	}
 	return q.count
 }
 
@@ -168,9 +162,6 @@ func (q *Deque[T]) IsEmpty() bool {
 // AsSlice returns an array containing all the elements of the Deque in order
 // of front/head to back/tail.
 func (q *Deque[T]) AsSlice() []T {
-	if q == nil || q.count == 0 {
-		return make([]T, 0)
-	}
 	res := make([]T, 0)
 	for i := 0; i < q.count; i++ {
 		res = append(res, q.data[(q.head+i)&(len(q.data)-1)])
