@@ -62,6 +62,7 @@ func NewPriorityQueue[T any]() *PriorityQueue[T] {
 	return pq
 }
 
+// Push adds an element to the PriorityQueue with the specified priority.
 func (pq *PriorityQueue[T]) Push(val T, priority int) {
 	item := &item[T]{
 		value:    val,
@@ -70,19 +71,34 @@ func (pq *PriorityQueue[T]) Push(val T, priority int) {
 	heap.Push(&pq.internal, item)
 }
 
-func (pq *PriorityQueue[T]) Pop() T {
+// Poll retrieves the highest priority item from the queue and removes it from
+// the PriorityQueue. If the queue is empty the zero value is returned with a
+// boolean value of false.
+func (pq *PriorityQueue[T]) Poll() (T, bool) {
+	if len(pq.internal) == 0 {
+		var zero T
+		return zero, false
+	}
 	item := heap.Pop(&pq.internal).(*item[T])
-	return item.value
+	return item.value, true
 }
 
-func (pq *PriorityQueue[T]) Peek() T {
-	return pq.internal[0].value
+// Peek returns the next element to be polled from the PriorityQueue. If the
+// queue is empty the zero value is returned with a boolean value of false.
+func (pq *PriorityQueue[T]) Peek() (T, bool) {
+	if len(pq.internal) == 0 {
+		var zero T
+		return zero, false
+	}
+	return pq.internal[0].value, true
 }
 
+// Len returns the length/size of the PriorityQueue.
 func (pq *PriorityQueue[T]) Len() int {
 	return len(pq.internal)
 }
 
+// IsEmpty returns true if the PriorityQueue is empty, otherwise false.
 func (pq *PriorityQueue[T]) IsEmpty() bool {
 	return len(pq.internal) == 0
 }
