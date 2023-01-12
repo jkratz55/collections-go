@@ -250,3 +250,38 @@ func TestConcurrentMap_GenericHasher(t *testing.T) {
 	assert.True(t, ok)
 	assert.Equal(t, "Agent 47", val)
 }
+
+func TestConcurrentMap_Upsert(t *testing.T) {
+	m := NewConcurrentMap[string, string](DefaultShards, StringHasher())
+	m.Set("hello", "world")
+
+	t.Run("Key Doesn't Exist", func(t *testing.T) {
+		fn := UpsertFunc[string](func(exist bool, current string, new string) string {
+			assert.False(t, exist)
+			assert.Equal(t, "", current)
+			assert.Equal(t, "johnny boy", new)
+			return new
+		})
+		res := m.Upsert("bravo", "johnny boy", fn)
+		assert.Equal(t, "johnny boy", res)
+
+		val, ok := m.Get("bravo")
+		assert.True(t, ok)
+		assert.Equal(t, "johnny boy", val)
+	})
+
+	t.Run("Key Does Exist", func(t *testing.T) {
+		fn := UpsertFunc[string](func(exist bool, current string, new string) string {
+			assert.True(t, exist)
+			assert.Equal(t, "world", current)
+			assert.Equal(t, "world!", new)
+			return new
+		})
+		res := m.Upsert("hello", "world!", fn)
+		assert.Equal(t, "world!", res)
+
+		val, ok := m.Get("hello")
+		assert.True(t, ok)
+		assert.Equal(t, "world!", val)
+	})
+}
