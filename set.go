@@ -133,6 +133,9 @@ func (s *Set[T]) UnmarshalJSON(data []byte) error {
 	if err := json.Unmarshal(data, &raw); err != nil {
 		return err
 	}
+	if s.data == nil {
+		s.data = make(map[T]struct{})
+	}
 	s.Add(raw...)
 	return nil
 }
@@ -149,6 +152,9 @@ func (s *Set[T]) UnmarshalMsgpack(data []byte) error {
 	var raw []T
 	if err := msgpack.Unmarshal(data, &raw); err != nil {
 		return err
+	}
+	if s.data == nil {
+		s.data = make(map[T]struct{})
 	}
 	s.Add(raw...)
 	return nil

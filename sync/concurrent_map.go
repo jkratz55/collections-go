@@ -200,6 +200,34 @@ func (m ConcurrentMap[K, V]) MSet(data map[K]V) {
 	}
 }
 
+// UpsertFunc is a function type that is invoked by the Upsert method. It accepts
+// a boolean indicating if a given key exists in the ConcurrentMap, the existing
+// value for the given key (or zero-value if it doesn't exist), and the new value.
+// The UpsertFunc is responsible for determining what data will be persisted in the
+// ConcurrentMap. The value returned from UpsertFunc is what is stored in the map
+// for the given key.
+type UpsertFunc[V any] func(exist bool, currentValue V, newValue V) V
+
+// Upsert retrieves a key from the ConcurrentMap and passes if it exists, the
+// current value (or zero-value if not found), and the new value to the UpsertFunc.
+// This allows the caller to inspect the current value and decide what to do. The
+// value returned from the UpsertFunc is set to the given key.
+//
+// This method can be useful when you need to fetch and update a key atomically.
+//
+// Important: If the UpsertFunc trys to access the ConcurrentMap it may lead to
+// a deadlock because locks in Go are not reentrant.
+func (m ConcurrentMap[K, V]) Upsert(key K, val V, fn UpsertFunc[V]) V {
+	shard := m.getShard(key)
+	shard.Lock()
+	defer shard.Unlock()
+
+	existingValue, exists := shard.data[key]
+	res := fn(exists, existingValue, val)
+	shard.data[key] = res
+	return res
+}
+
 // Delete deletes a single key/value from the ConcurrentMap returning
 // a boolean indicating if the key was present or not.
 func (m ConcurrentMap[K, V]) Delete(key K) bool {
